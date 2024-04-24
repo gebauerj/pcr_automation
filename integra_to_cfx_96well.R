@@ -26,16 +26,19 @@ ui <-
     )
   )
 
+# define server function
 server <- function(input, output) {
-  
+  # renders the interactive table
+  # The data, in this case sample barcodes, can then be read in using a barcode scanner
   output$res_auth <- renderPrint({
     reactiveValuesToList(result_auth)
   })
-  #load template
+  # load template
   df1<-readRDS("template_96well.rds")
   output$table <- renderRHandsontable({
     df1 %>% rhandsontable()})
-  #load metadata and attach them to the scanned samples
+  # load metadata (from LIS-Export) and attach them to the scanned samples
+  # processing of pooled samples is possible
   observeEvent(input$load,{
     metadata<-readRDS("metadata.RDS")
     df2<-hot_to_r(input$table) %>%
@@ -49,7 +52,7 @@ server <- function(input, output) {
         df2 %>% rhandsontable()})
 
   })
-  
+  # modal dialog to specify the name of the output file
   popupModal <- function(failed = FALSE) {
     modalDialog(
       textInput("txt", "Input runfile name:",
@@ -69,7 +72,7 @@ server <- function(input, output) {
     showModal(popupModal())
   })
   
-  
+  # writes the output file
   observeEvent(input$ok, {
     
     if (!is.null(input$txt) && nzchar(input$txt)) {

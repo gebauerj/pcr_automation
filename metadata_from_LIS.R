@@ -1,9 +1,10 @@
 library(tidyverse)
 
-
+# loads the example file
 path_metadata_from_LIS<- getwd()
 file_metadata<-"metadata.RDS"
 
+# defines the format of our LIS-export file
 read_metadata<- . %>% read_fwf(.,
                           locale = readr::locale(encoding = "latin1"),
                           fwf_cols(Type = c(16,17), PC = c(20,25),
@@ -16,16 +17,17 @@ read_metadata<- . %>% read_fwf(.,
   mutate(Name = str_replace_all(Name, "/", " "),
          ANR = as.character(ANR))
 
+# batch processing of all meta-dataexport files
 if(!is_empty(list.files(path = path_metadata_from_LIS, pattern = ".txt", full.names = T))){
 
 files_LIS_input<-list.files(path = path_metadata_from_LIS, pattern = "metadata.txt", full.names = T)
 LIS_input<-sapply(files_LIS_input, read_metadata, simplify =  F) %>% bind_rows() %>%
   as_tibble() %>% distinct() %>% mutate(ANR=as.character(ANR))
 print(LIS_input)
-# #possibility to store imported data
+# possibility to store imported data
 saveRDS(LIS_input, file_metadata)
 
-# #removes files after processing
+# # removes files after processing (commented out in the demo version)
 # file.remove(files_LIS_input)
 }
 
